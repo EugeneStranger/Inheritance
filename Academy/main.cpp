@@ -43,15 +43,20 @@ public:
 		set_age(age);
 		cout << "HConstructor:\t\t" << this << endl;
 	}
-	~Human()
+	virtual ~Human()
 	{
 		cout << "HDestructor:\t\t" << this << endl;
 	}
-	void print()const
+	virtual std::ostream& print(std::ostream& os)const
 	{
-		cout << last_name << " " << first_name << " " << age << endl;
+		return os << last_name << " " << first_name << " " << age;
 	}
+	//__vfptr - Virtual Functions Pointers
 };
+std::ostream& operator<<(std::ostream& os, const Human& obj)
+{
+	return obj.print(os);
+}
 
 class Student :public Human
 {
@@ -60,11 +65,11 @@ class Student :public Human
 	double rating;
 	double attendence;
 public:
-	const std::string get_speciality()
+	const std::string& get_speciality()const
 	{
 		return speciality;
 	}
-	const std::string get_group()
+	const std::string& get_group()const
 	{
 		return group;
 	}
@@ -72,7 +77,7 @@ public:
 	{
 		return rating;
 	}
-	double get_attendence()
+	double get_attendence()const
 	{
 		return attendence;
 	}
@@ -107,19 +112,23 @@ public:
 	{
 		cout << "SDestructor:\t\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{
-		Human::print();
-		cout << speciality << " " << group << " " << rating << " " << attendence << endl;
+		Human::print(os) << " ";
+		return os << speciality << " " << group << " " << rating << " " << attendence;
 	}
 };
+//std::ostream& operator<<(std::ostream& os, const Student& obj)
+//{
+//	return os << obj.get_speciality() << " " << obj.get_group() << " " << obj.get_rating() << " " << obj.get_attendence();
+//}
 
 class Teacher :public Human
 {
 	std::string speciality;
 	int experience;
 public:
-	const std::string get_speciality()
+	const std::string get_speciality()const
 	{
 		return speciality;
 	}
@@ -149,10 +158,10 @@ public:
 	{
 		cout << "TDestructor:\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{
-		Human::print();
-		cout << speciality << " " << experience << endl;
+		Human::print(os) << " ";
+		return os << speciality << " " << experience;
 	}
 };
 
@@ -160,7 +169,7 @@ class Graduate : public Student
 {
 	std::string subject;
 public:
-	const std::string get_subject()
+	const std::string get_subject()const
 	{
 		return subject;
 	}
@@ -182,17 +191,17 @@ public:
 	{
 		cout << "GDestructor:\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{
-		Student::print();
-		cout << subject << endl;
+		Student::print(os) << " ";
+		return os << subject;
 	}
 };
 
 void main()
 {
 	setlocale(LC_ALL, "");
-	Human human("Montana", "Antonio", 30);
+	/*Human human("Montana", "Antonio", 30);
 	cout << delimiter;
 	human.print();
 	cout << delimiter;
@@ -210,5 +219,26 @@ void main()
 	Graduate grad("Schrader", "Hank", 40, "Criminalistic", "OBN", 50, 50, "How to catch");
 	cout << delimiter;
 	grad.print();
+	cout << delimiter;*/
+	//Generalisation
+	//Up-Cast
+	Human* group[] =
+	{
+		new Student("Pinkman","Jessie", 25, "Chemistry","WW_220", 95, 98),
+		new Teacher("White", "Walter", 50, "Chemistry", 20),
+		new Graduate("Schrader", "Hank", 40, "Criminalistic", "OBN", 50, 50, "How to catch")
+	};
 	cout << delimiter;
+	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
+	{
+		/*cout << typeid(*group[i]).name() << endl;
+		group[i]->print();*/
+		cout << *group[i] << endl;
+		cout << delimiter;
+	}
+	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
+	{
+		delete group[i];
+	}
+
 }
